@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.chapter02.dao.DepartmentMapper">
+
+    <!-- Department getDeptById(Integer id); -->
+    <select id="getDeptById" resultType="com.study.chapter02.bean.Department">
+        select id, dept_name departmentName from dept where id = #{id}
+    </select>
+
+    <!--
+        collection嵌套结果集的方式，定义关联的集合类型元素的封装规则
+    -->
+    <!-- Department getDeptByIdPlus(Integer id); -->
+    <resultMap id="myDept" type="com.study.chapter02.bean.Department">
+        <id column="did" property="id"/>
+        <result column="dept_name" property="departmentName"/>
+        <!--
+            collections定义关联集合类型的属性的封装规则
+            ofType:指定集合里面元素的类型
+         -->
+        <collection property="emps" ofType="com.study.chapter02.bean.Employee">
+            <!-- 定义集合中元素的封装规则 -->
+            <id column="eid" property="id"/>
+            <result column="last_name" property="lastName"/>
+            <result column="email" property="email"/>
+            <result column="gender" property="gender"/>
+        </collection>
+    </resultMap>
+    <select id="getDeptByIdPlus" resultMap="myDept">
+        select d.id did, dept_name, e.id eid, last_name, email, gender from dept d left join employee e on d.id = e.d_id where d.id = #{id};
+    </select>
+    
+    <!-- Department getDeptByIdStep(Integer id); -->
+    <resultMap id="myDeptStep" type="com.study.chapter02.bean.Department">
+        <id column="id" property="id"/>
+        <result column="dept_name" property="departmentName"/>
+        <collection property="emps"
+                    select="com.study.chapter02.dao.EmployeeMapperPlus.getEmpsByDeptId"
+                    column="deptId=id" fetchType="lazy"/>
+    </resultMap>
+    <select id="getDeptByIdStep" resultMap="myDeptStep">
+        select * from dept where id = #{id}
+    </select>
+
+    <!-- 扩展：多列的值传递过去
+            将多列的值封装map传递：
+            column="{key1=column1,key2=column2}"
+        fetchType="lazy" 延迟加载（优先级高于全局）
+            - lazy:延迟
+            - eager:理解
+    -->
+</mapper>

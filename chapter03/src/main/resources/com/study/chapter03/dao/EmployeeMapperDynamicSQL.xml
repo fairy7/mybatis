@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.chapter03.dao.EmployeeMapperDynamicSQL">
+
+    <!--
+        if
+        choose (when, otherwise)
+        trim (where, set)
+        foreach
+    -->
+
+    <!-- 查询员工：要求：携带了那个字段的查询条件就带上这个字段的值
+
+     查询时如果某些条件没带，可能sql拼装有问题
+     1.where后面加1=1，后面条件都加and
+     2.mybatis使用where标签（只会处理第一个and）
+
+     -->
+
+    <!-- List<Employee> getEmpsByConditionIf(Employee employee); -->
+    <select id="getEmpsByConditionIf" resultType="com.study.bean.Employee">
+        select * from employee
+        /* test:判断表达式（OGNL）  c:if test(EL)
+        从参数中取值进行判断
+        遇见特殊符号应该去写转义字符：
+        */
+        <where>
+            <if test="id != null">
+                id != #{id}
+            </if>
+            <if test="lastName != null and lastName != ''">
+                and last_name like #{lastName}
+            </if>
+            <if test="email != null and email.trim() != ''">
+                and email = #{email}
+            </if>
+            <if test="gender == 0 or gender == 1">
+                and gender = #{gender}
+            </if>
+        </where>
+    </select>
+
+</mapper>

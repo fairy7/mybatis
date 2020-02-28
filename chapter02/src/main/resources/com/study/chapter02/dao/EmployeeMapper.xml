@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.chapter02.dao.EmployeeMapper">
+    <!--
+    namespace:命名空间;指定为接口的全类名
+    id:唯一标识
+    resultType:
+    -->
+
+    <!-- Map<Integer, Employee> getEmpByLastNameLikeReturnMap(String lastName); -->
+    <select id="getEmpByLastNameLikeReturnMap" resultType="com.study.chapter02.bean.Employee">
+        select * from employee where last_name like #{lastName}
+    </select>
+
+    <!-- Map<String, Employee> getEmpByIdReturnMap(Integer id); -->
+    <select id="getEmpByIdReturnMap" resultType="map">
+        select * from employee where id = #{id}
+    </select>
+
+    <!--List<Employee> getEmpsByLastNameLike(String lastName);-->
+    <select id="getEmpsByLastNameLike" resultType="com.study.chapter02.bean.Employee">
+        select * from employee where last_name like #{lastName}
+    </select>
+    
+    <select id="getEmpByMap" resultType="com.study.chapter02.bean.Employee">
+        select * from employee where id = #{id} and last_name = #{name}
+    </select>
+
+    <select id="getEmpByIdAndName" resultType="com.study.chapter02.bean.Employee">
+        select * from employee where id = #{id} and last_name = #{lastName}
+    </select>
+
+    <select id="getEmpById" resultType="com.study.chapter02.bean.Employee"
+            databaseId="mysql">
+        select * from employee where id = #{id}
+    </select>
+
+    <!-- parameterType: 可以省略
+    mysql支持自增主键，自增主键的获取，mybatis也是利用statement.getGeneratedKeys();
+    useGeneratedKeys="true"：使用自增主键获取主键值策略
+    keyProperty：指定对应的主键属性，也就是mybatis获取到主键值以后，将这个值封装给JavaBean的那个属性
+    -->
+    <insert id="addEmp" parameterType="com.study.chapter02.bean.Employee"
+        useGeneratedKeys="true" keyProperty="id">
+        insert into employee (last_name, gender, email) VALUES (#{lastName}, #{gender}, #{email})
+    </insert>
+
+    <!--
+        Oracle不支持自增；Oracle使用序列来模拟自增；
+        每次插入的数据的主键是从序列中拿到的值；如何获取到这个值；
+    -->
+
+    <!--<insert id="addEmp" databaseId="oracle">
+        &lt;!&ndash;
+        keyProperty:封装主键的那个属性
+        order="BEFORE"：查询在插入语句之前运行
+              "AFTER"
+        resultType="Integer"：查出的数据返回值类型
+        &ndash;&gt;
+        <selectKey keyProperty="id" order="BEFORE" resultType="Integer">
+            select employee_seq.nextval from dual
+        </selectKey>
+        insert into employee(id, last_name, gender, email)
+        VALUES (#{id}, #{lastName}, #{gender}, #{email})
+    </insert>-->
+    <!--<insert id="addEmp" databaseId="oracle">
+        &lt;!&ndash;
+        keyProperty:封装主键的那个属性
+        order="BEFORE"：查询在插入语句之前运行
+              "AFTER"
+        resultType="Integer"：查出的数据返回值类型
+        &ndash;&gt;
+        <selectKey keyProperty="id" order="AFTER" resultType="Integer">
+            select employee_seq.currval from dual
+        </selectKey>
+        insert into employee(id, last_name, gender, email)
+        VALUES (employee_seq.nextval, #{lastName}, #{gender}, #{email})
+    </insert>-->
+
+    <update id="updateEmp">
+        update employee
+            set last_name = #{lastName}, email = #{email}, gender = #{gender}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEmp">
+        delete from employee where id = #{id}
+    </delete>
+</mapper>
